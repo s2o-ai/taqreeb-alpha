@@ -20,7 +20,7 @@ print("Whisper model loaded successfully")
 
 print(f"Starting speech-to-text transcription for: {file_path}")
 
-transcript = model.transcribe(file_path, language="ar")
+transcript = model.transcribe(file_path.as_posix(), language="ar")
 
 # Extract segments with timing information
 segments: list[dict[str, str | float]] = []
