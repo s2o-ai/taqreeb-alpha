@@ -1,0 +1,7 @@
+yt-dlp
+pydub
+kokoro
+transformers
+numpy
+openai-whisper
+sacremoses
