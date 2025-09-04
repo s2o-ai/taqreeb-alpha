@@ -4,7 +4,7 @@ from pathlib import Path
 import yt_dlp
 
 parser = ArgumentParser()
-parser.add_argument("video-url")
+parser.add_argument("video_url")
 parser.add_argument("--output-dir", "-o", default="output")
 args = parser.parse_args()
 

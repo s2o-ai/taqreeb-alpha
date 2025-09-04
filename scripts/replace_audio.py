@@ -4,8 +4,8 @@ import subprocess
 
 
 parser = ArgumentParser()
-parser.add_argument("video-path")
-parser.add_argument("audio-path")
+parser.add_argument("video_path")
+parser.add_argument("audio_path")
 parser.add_argument("--output-dir", "-o", default="output")
 args = parser.parse_args()
 
