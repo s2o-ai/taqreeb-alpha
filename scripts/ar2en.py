@@ -30,7 +30,7 @@ print(f"Starting Arabic to English translation for {len(segments)} segments")
 texts = [segment["text"] for segment in segments]
 
 print("Tokenizing and translating texts...")
-inputs = tokenizer(texts, return_tensors="pt")
+inputs = tokenizer(texts, return_tensors="pt", padding=True, truncation=True)
 translated_tokens = model.generate(**inputs, eos_token_id=tokenizer.eos_token_id)
 translated_texts = [tokenizer.decode(t, skip_special_tokens=True) for t in translated_tokens]
 
