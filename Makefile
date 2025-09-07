@@ -38,6 +38,13 @@ FINAL_AUDIO  := $(WORKDIR)/final.wav
 
 .PHONY: all dub clean deps help
 
+define check_not_revising
+	@if [ "$$(head -n1 $1)" = "--- REVISING ---" ]; then \
+		echo "❌ Error: $1 is still marked as revising."; \
+		exit 1; \
+	fi
+endef
+
 all: deps dub
 
 ## Run dubbing pipeline (url=... [mode=vid|aud] [voice=...] [output-dir=...])
@@ -45,27 +52,34 @@ dub: $(if $(filter $(MODE),vid),$(FINAL_VIDEO),$(FINAL_AUDIO))
 
 # --- Step targets ---
 $(VIDEO_FILE):
+	$(call check_not_revising,$<)
 	@mkdir -p "$(WORKDIR)"
 	$(PYTHON) scripts/get_video.py "$(URL)" --output-dir "$(WORKDIR)"
 
 $(AUDIO_FILE): $(if $(filter $(MODE),vid),$(VIDEO_FILE))
+	$(call check_not_revising,$<)
 	@mkdir -p "$(WORKDIR)"
 	$(PYTHON) scripts/get_audio.py "$(URL)" --output-dir "$(WORKDIR)"
 
 $(STT_FILE): $(AUDIO_FILE)
+	$(call check_not_revising,$<)
 	$(PYTHON) scripts/stt.py "$(AUDIO_FILE)" --output-dir "$(WORKDIR)"
 
 $(TRANSL_FILE): $(STT_FILE)
+	$(call check_not_revising,$<)
 	$(PYTHON) scripts/ar2en.py "$(STT_FILE)" --output-dir "$(WORKDIR)"
 
 $(TTS_FILE): $(TRANSL_FILE)
+	$(call check_not_revising,$<)
 	$(PYTHON) scripts/tts.py "$(TRANSL_FILE)" --output-dir "$(WORKDIR)" --voice "$(VOICE)"
 
 $(FINAL_VIDEO): $(TTS_FILE) $(TRANSL_FILE) $(STT_FILE) $(VIDEO_FILE)
+	$(call check_not_revising,$<)
 	$(PYTHON) scripts/align_video.py "$(VIDEO_FILE)" "$(STT_FILE)" "$(TRANSL_FILE)" --output-dir "$(WORKDIR)"
 	$(PYTHON) scripts/replace_audio.py "$(VIDEO_FILE)" "$(TTS_FILE)" --output-dir "$(WORKDIR)"
 
 $(FINAL_AUDIO): $(TTS_FILE)
+	$(call check_not_revising,$<)
 	cp "$(TTS_FILE)" "$(FINAL_AUDIO)"
 
 ## Clean outputs
